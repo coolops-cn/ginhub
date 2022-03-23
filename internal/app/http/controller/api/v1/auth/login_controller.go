@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"fmt"
-
 	v1 "github.com/coolops-cn/ginhub/internal/app/http/controller/api/v1"
 	"github.com/coolops-cn/ginhub/internal/app/requests"
 	"github.com/coolops-cn/ginhub/internal/pkg/auth"
@@ -31,7 +29,6 @@ func (lc *LoginController) LoginByPassword(c *gin.Context) {
 
 	if err != nil {
 		response.WriteResponse(c, errors.UserLoginUnauthorized, nil)
-		fmt.Println("111111111111111", err.Error())
 	} else {
 		token := jwt.NewJWT().IssueToken(_user.GetStringID(), _user.Username)
 		response.WriteResponse(c, nil, gin.H{
