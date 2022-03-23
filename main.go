@@ -1,13 +1,15 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"os"
 
 	"github.com/coolops-cn/ginhub/bootstrap"
 	"github.com/coolops-cn/ginhub/pkg/config"
-	"github.com/gin-gonic/gin"
+	"github.com/coolops-cn/ginhub/pkg/console"
+	"github.com/spf13/cobra"
 
+	"github.com/coolops-cn/ginhub/internal/app/cmd"
 	internalConfig "github.com/coolops-cn/ginhub/internal/config"
 )
 
@@ -17,27 +19,38 @@ func init() {
 
 func main() {
 
-	// 初始化配置文件
-	var env string
-	flag.StringVar(&env, "env", "", "加载 .env 配置文件")
-	flag.Parse()
-	config.InitConfig(env)
+	// 应用入口
+	var rootCmd = &cobra.Command{
+		Use:   config.Get("app.name"),
+		Short: "A simple project ginhub",
+		Long:  `Default will run "serve" command, you can use "-h" flag to see all subcommands`,
+		// rootCmd 的所有子命令都会执行以下代码
+		PersistentPreRun: func(command *cobra.Command, args []string) {
 
-	// 初始化日志
-	bootstrap.SetupLogger()
+			// 配置初始化，依赖命令行 --env 参数
+			config.InitConfig(cmd.Env)
 
-	gin.SetMode(gin.ReleaseMode)
-	// 创建 Gin
-	router := gin.New()
+			// 初始化 Logger
+			bootstrap.SetupLogger()
 
-	// 初始化数据库
-	bootstrap.SetupDatabase()
+			// 初始化数据库
+			bootstrap.SetupDatabase()
+		},
+	}
 
-	// 初始化路由
-	bootstrap.SetupRouter(router)
+	// 注册子命令
+	rootCmd.AddCommand(
+		cmd.ServeCommand,
+	)
 
-	// 运行服务
-	if err := router.Run(":" + config.Get("app.port")); err != nil {
-		fmt.Println(err.Error())
+	// 配置默认运行 Web 服务
+	cmd.RegisterDefaultCmd(rootCmd, cmd.ServeCommand)
+
+	// 注册全局参数，--env
+	cmd.RegisterGlobalFlags(rootCmd)
+
+	// 执行主命令
+	if err := rootCmd.Execute(); err != nil {
+		console.Exit(fmt.Sprintf("Failed to run app with %v: %s", os.Args, err.Error()))
 	}
 }

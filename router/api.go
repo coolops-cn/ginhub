@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/coolops-cn/ginhub/internal/app/http/controller/api/v1/auth"
+	"github.com/coolops-cn/ginhub/internal/app/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +18,9 @@ func RegisterAPIRouter(r *gin.Engine) {
 			luc := new(auth.LoginController)
 			authGroup.POST("/login/using-password", luc.LoginByPassword)
 			authGroup.POST("/login/refresh-token", luc.RefreshToken)
+
+			puc := new(auth.PasswordController)
+			authGroup.POST("/reset-password", middlewares.AuthJWT(), puc.ResetPassword)
 		}
 	}
 }

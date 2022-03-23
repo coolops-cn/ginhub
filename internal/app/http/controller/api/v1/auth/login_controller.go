@@ -3,7 +3,7 @@ package auth
 import (
 	v1 "github.com/coolops-cn/ginhub/internal/app/http/controller/api/v1"
 	"github.com/coolops-cn/ginhub/internal/app/requests"
-	"github.com/coolops-cn/ginhub/internal/pkg/auth"
+	"github.com/coolops-cn/ginhub/pkg/auth"
 	"github.com/coolops-cn/ginhub/pkg/errors"
 	"github.com/coolops-cn/ginhub/pkg/jwt"
 	"github.com/coolops-cn/ginhub/pkg/response"
