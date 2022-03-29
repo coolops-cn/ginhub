@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"net/http"
+	"syscall"
+
 	"github.com/coolops-cn/ginhub/bootstrap"
 	"github.com/coolops-cn/ginhub/pkg/config"
-	"github.com/coolops-cn/ginhub/pkg/console"
-	"github.com/coolops-cn/ginhub/pkg/logger"
+	"github.com/coolops-cn/ginhub/pkg/shutdown"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 )
@@ -28,10 +30,16 @@ func runWeb(cmd *cobra.Command, args []string) {
 	// 初始化路由
 	bootstrap.SetupRouter(router)
 
-	// 运行服务
-	err := router.Run(":" + config.Get("app.port"))
-	if err != nil {
-		logger.ErrorString("CMD", "serve", err.Error())
-		console.Exit("Unable to start server, error:" + err.Error())
+	server := &http.Server{
+		Addr:    config.Get("app.port"),
+		Handler: router,
 	}
+
+	// 运行服务
+	go server.ListenAndServe()
+
+	// 优雅退出
+	quit := shutdown.New(10)
+	quit.Add(syscall.SIGINT, syscall.SIGTERM)
+	quit.Start(server)
 }
