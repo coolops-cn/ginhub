@@ -65,6 +65,10 @@ func Logger() gin.HandlerFunc {
 			logFields = append(logFields, zap.String("Response Body", w.body.String()))
 		}
 
+		if traceID := c.Request.Header.Get(XRequestIDKey); traceID != "" {
+			logFields = append(logFields, zap.String("Trace ID", traceID))
+		}
+
 		if responStatus > 400 && responStatus <= 499 {
 			// 除了 StatusBadRequest 以外，warning 提示一下，常见的有 403 404，开发时都要注意
 			logger.Warn("HTTP Warning "+cast.ToString(responStatus), logFields...)
@@ -74,5 +78,6 @@ func Logger() gin.HandlerFunc {
 		} else {
 			logger.Debug("HTTP Access Log", logFields...)
 		}
+
 	}
 }

@@ -50,13 +50,13 @@ func Secure(c *gin.Context) {
 
 func defaultMiddleware() map[string]gin.HandlerFunc {
 	return map[string]gin.HandlerFunc{
-		"recovery": gin.Recovery(),
-		"secure":   Secure,
-		"options":  Options,
-		"nocache":  NoCache,
-		"cors":     Cors(),
-		// "requestid": RequestID(),
-		"logger": Logger(),
-		"dump":   gindump.Dump(),
+		"recovery":  gin.Recovery(),
+		"secure":    Secure,
+		"options":   Options,
+		"nocache":   NoCache,
+		"cors":      Cors(),
+		"requestid": RequestID(),
+		"logger":    Logger(),
+		"dump":      gindump.Dump(),
 	}
 }
